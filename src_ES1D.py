@@ -4,20 +4,20 @@ import matplotlib.pyplot as plt
 
 
 # 从粒子到网格分配电荷的一阶权重法
-def particle_to_cell(np, nc):
+def particle_to_cell(np, nc, delta_x=1.0):  # delta_x = 1  # length of cell，缺省参数，默认为1
     """
     从粒子到网格分配电荷的一阶权重法
     :param np: number of particles
     :param nc: number of cells
     """
 
-    delta_x = 1  # length of cell  # TODO(rainzer) 再定义一个缺省参数，不赋值的时候默认为1，否则定义为网格间距
-
-    xp = npy.round(npy.random.uniform(0, nc, size=np), 2)  # 在网格中随机生成粒子位置
-    print('xp =', xp)
+    xp = npy.random.uniform(0, nc * delta_x, size=np)  # 在网格中随机生成粒子位置
+    print('xp =', npy.round(xp, 2))
+    normalized_xp = xp / delta_x  # 归一化的粒子位置
+    print('normalized_xp = ', npy.round(normalized_xp, 2))
     list_xp = [0] * (nc + 1)  # 列表储存格点分配的电荷
 
-    for element_xp in xp:  # 一阶权重法计算网格分配到的电荷
+    for element_xp in normalized_xp:  # 一阶权重法计算网格分配到的电荷
         index_floor = int(npy.floor(element_xp))
         index_ceil = int(npy.ceil(element_xp))
         list_xp[index_floor] = list_xp[index_floor] + npy.ceil(element_xp) - element_xp
@@ -44,7 +44,9 @@ def particle_to_cell(np, nc):
     # 绘制均值线
     plt.axhline(y=average, color='red', linestyle='--')
     # 在图中显示平均值
-    plt.text(x[-1], npy.around(average, 2), f'avg = {average}', ha='left', va='bottom', color='red')
+    # plt.text(x[-1], npy.around(average, 2), f'avg = {average}', ha='left', va='bottom', color='red')  # 在均值线附近显示均值
+    plt.text(80, npy.max(data_array), f'avg = {npy.round(average, 2)}',
+             ha='left', va='bottom', color='red')  # 在图的右上角显示均值
     # 添加标题和标签
     plt.title('Scatter Plot with Errors')
     plt.xlabel('Grid Point')
@@ -54,4 +56,4 @@ def particle_to_cell(np, nc):
 
 
 # 利用一阶权重法计算网格点分配到的电荷
-particle_to_cell(10000,100)  # (粒子数，网格数)
+particle_to_cell(10000, 100, 1)  # (粒子数，网格数)
